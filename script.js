@@ -26,12 +26,11 @@ const state = {
     fanColor: 0,
   },
 
-  // 신규: 공장 부품 생산 레벨
   factoryParts: {
-    wafer: 0,   // 실리콘 웨이퍼 레벨 (초당 코인 생산)
-    copper: 0,  // 구리 배선 레벨 (클릭당 코인 추가)
-    heatsink: 0,// 방열판 레벨 (서버 온도 안정화)
-    aiChip: 0   // AI 칩셋 레벨 (전체 생산 배율 증가)
+    wafer: 0,
+    copper: 0,
+    heatsink: 0,
+    aiChip: 0
   }
 };
 
@@ -296,7 +295,6 @@ function getMultiplier() {
   if (state.customizations.fanColor === 1) customMult += 0.05;
   if (state.customizations.fanColor === 2) customMult += 0.08;
 
-  // 공장 AI 칩셋 배율 (레벨당 +10%)
   const aiChipMult = 1 + (state.factoryParts.aiChip * 0.10);
 
   return quantumMult * tokenMult * buffMult * tempPenalty * rackMult * poolMult * customMult * aiChipMult;
@@ -314,8 +312,6 @@ function updateCPS() {
   base += upgrades.find(u => u.id === "miner").level * 3.5;
   base += upgrades.find(u => u.id === "laser").level * 18;
   base += upgrades.find(u => u.id === "factory").level * 90;
-  
-  // 공장 웨이퍼 라인 추가 (레벨당 +2 CPS)
   base += state.factoryParts.wafer * 2.0;
 
   state.cps = base * getMultiplier();
@@ -386,6 +382,48 @@ function load() {
   } catch (e) {
     console.warn("세이브 로드 실패", e);
   }
+}
+
+// ==================== 세이브 파일 내보내기 / 불러오기 ====================
+function exportSaveFile() {
+  save();
+  const raw = localStorage.getItem("pcRigMinerUltimateSave");
+  if (!raw) {
+    showToast("저장된 데이터가 없습니다!");
+    return;
+  }
+  const blob = new Blob([raw], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "miner_save.json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("세이브 파일 다운로드 완료!");
+}
+
+function importSaveFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const content = e.target.result;
+      JSON.parse(content); // 유효한 JSON인지 검증
+      localStorage.setItem("pcRigMinerUltimateSave", content);
+      load();
+      applyCustomVisuals();
+      renderUpgrades();
+      updateUI();
+      showToast("세이브 파일 연동 성공!");
+      document.getElementById("statsModal").classList.add("hidden");
+    } catch (err) {
+      showToast("잘못된 세이브 파일입니다!");
+    }
+  };
+  reader.readAsText(file);
 }
 
 // ==================== UI 업데이트 ====================
@@ -628,7 +666,6 @@ function renderCustomShop() {
 // ==================== 시스템 업데이트 로직 ====================
 function updateTemperature(delta) {
   const heatGeneration = (state.cps * 0.005) + 0.1;
-  // 방열판 부품 레벨당 냉각 효율 추가 보너스
   const heatsinkBonus = state.factoryParts.heatsink * 0.2;
   const coolingPower = 0.5 + (state.coolingLevel * 0.3) + heatsinkBonus;
   state.serverTemp = Math.min(100, Math.max(30, state.serverTemp + (heatGeneration * delta) - (coolingPower * delta)));
@@ -802,6 +839,9 @@ const closeForkBtn = document.getElementById("closeForkBtn");
 const executeForkBtn = document.getElementById("executeForkBtn");
 
 const saveBtn = document.getElementById("saveBtn");
+const exportSaveBtn = document.getElementById("exportSaveBtn");
+const importSaveBtn = document.getElementById("importSaveBtn");
+const importFile = document.getElementById("importFile");
 
 function handleMine(e) {
   if (statsModal && !statsModal.classList.contains("hidden")) return;
@@ -936,6 +976,15 @@ if (saveBtn) {
     save();
     showToast("게임이 수동 저장되었습니다!");
   });
+}
+
+if (exportSaveBtn) {
+  exportSaveBtn.addEventListener("click", exportSaveFile);
+}
+
+if (importSaveBtn && importFile) {
+  importSaveBtn.addEventListener("click", () => importFile.click());
+  importFile.addEventListener("change", importSaveFile);
 }
 
 // ==================== 게임 루프 및 타이머 ====================

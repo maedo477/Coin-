@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0a0f1d" />
-  <title>3D 컴퓨터 채굴기 게임 - Ultimate Edition + Factory</title>
+  <title>3D 컴퓨터 채굴기 게임 - Ultimate Edition + Cloud Sync</title>
   <link rel="stylesheet" href="style.css" />
   <!-- Three.js 3D 라이브러리 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -80,11 +80,11 @@
     </nav>
   </div>
 
-  <!-- 통계 모달 창 -->
+  <!-- 통계 및 세이브 연동 모달 창 -->
   <div id="statsModal" class="modal hidden">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>📊 채굴 통계</h3>
+        <h3>📊 채굴 통계 및 연동</h3>
         <button id="closeStatsBtn" class="close-btn">&times;</button>
       </div>
       <div class="modal-body">
@@ -105,6 +105,12 @@
           <span id="statPlayTime" class="stat-value">0분</span>
         </div>
         <button id="saveBtn" class="modal-action-btn">게임 수동 저장</button>
+        
+        <div style="display: flex; gap: 8px; margin-top: 4px;">
+          <button id="exportSaveBtn" class="modal-action-btn primary" style="flex: 1; font-size: 0.8rem;">💾 세이브 파일 내보내기</button>
+          <button id="importSaveBtn" class="modal-action-btn" style="flex: 1; font-size: 0.8rem; background: #0284c7; color: white;">📂 세이브 파일 불러오기</button>
+          <input type="file" id="importFile" accept=".json" style="display: none;" />
+        </div>
       </div>
     </div>
   </div>
