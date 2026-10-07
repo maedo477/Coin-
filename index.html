@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0a0f1d" />
+  <title>3D 컴퓨터 채굴기 게임</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Three.js 3D 라이브러리 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- 상단 정보 -->
+    <header class="header">
+      <div class="coin-display">
+        <span class="coin-icon">🪙</span>
+        <span id="coinCount">0</span>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <span class="label">초당 수익</span>
+          <span id="cps">0</span>
+        </div>
+        <div class="stat">
+          <span class="label">클릭당</span>
+          <span id="cpc">1</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 메인 3D 컴퓨터 채굴기 영역 -->
+    <main class="mine-area">
+      <!-- 콤보 표시 배지 -->
+      <div id="comboBadge" class="combo-badge hidden">🔥 COMBO x<span id="comboCount">1</span></div>
+
+      <!-- 3D 컴퓨터 채굴기 캔버스 -->
+      <div id="canvasContainer" class="canvas-container">
+        <div class="mine-text-overlay">탭해서 채굴!</div>
+      </div>
+      <div id="particles" class="particles"></div>
+    </main>
+
+    <!-- 업그레이드 패널 -->
+    <section class="upgrades">
+      <h2>⚡ 채굴 장비 상점</h2>
+      <div class="upgrade-list" id="upgradeList">
+        <!-- JS 동적 생성 -->
+      </div>
+    </section>
+
+    <!-- 하단 탭 -->
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-tab="mine">🖥️ 채굴</button>
+      <button class="nav-btn" data-tab="stats" id="openStatsBtn">📊 통계</button>
+      <button class="nav-btn" data-tab="settings" id="saveBtn">💾 저장</button>
+    </nav>
+  </div>
+
+  <!-- 통계 모달 팝업 -->
+  <div id="statsModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>📊 채굴 통계</h3>
+        <button id="closeStatsBtn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="stat-row">
+          <span class="stat-title">누적 채굴 코인</span>
+          <span id="statTotalMined" class="stat-value">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-title">총 탭(클릭) 횟수</span>
+          <span id="statTotalClicks" class="stat-value">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-title">최고 콤보 기록</span>
+          <span id="statMaxCombo" class="stat-value">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-title">총 플레이 시간</span>
+          <span id="statPlayTime" class="stat-value">0분</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 토스트 메시지 -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
