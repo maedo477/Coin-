@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0a0f1d" />
-  <title>3D 컴퓨터 채굴기 게임</title>
+  <title>3D 컴퓨터 채굴기 게임 - Ultimate Edition + Factory</title>
   <link rel="stylesheet" href="style.css" />
   <!-- Three.js 3D 라이브러리 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -28,6 +28,10 @@
           <span class="label">클릭당</span>
           <span id="cpc">1</span>
         </div>
+        <div class="stat">
+          <span class="label">해시토큰</span>
+          <span id="tokenCount">0</span>
+        </div>
       </div>
     </header>
 
@@ -35,6 +39,19 @@
     <main class="mine-area">
       <!-- 콤보 표시 배지 -->
       <div id="comboBadge" class="combo-badge hidden">🔥 COMBO x<span id="comboCount">1</span></div>
+      
+      <!-- 오버클럭 버프 타이머 배지 -->
+      <div id="buffBadge" class="buff-badge hidden">⚡ 오버클럭 중! (<span id="buffTime">10</span>초)</div>
+
+      <!-- 무작위 드롭 아이템 컨테이너 -->
+      <div id="dropContainer" class="drop-container"></div>
+
+      <!-- 랜섬웨어 경고 팝업 -->
+      <div id="ransomAlert" class="ransom-alert hidden">
+        <div class="ransom-title">⚠️ 랜섬웨어 감염 위기!</div>
+        <div class="ransom-desc">5초 안에 버튼을 연타하여 차단하세요! (<span id="ransomClicks">15</span>회 남음)</div>
+        <button id="ransomBtn" class="ransom-btn">긴급 차단 연타!</button>
+      </div>
 
       <!-- 3D 컴퓨터 채굴기 캔버스 -->
       <div id="canvasContainer" class="canvas-container">
@@ -54,12 +71,16 @@
     <!-- 하단 탭 -->
     <nav class="bottom-nav">
       <button class="nav-btn active" data-tab="mine">🖥️ 채굴</button>
+      <button class="nav-btn" data-tab="factory" id="openFactoryBtn">🏭 공장</button>
+      <button class="nav-btn" data-tab="market" id="openMarketBtn">📈 거래소</button>
+      <button class="nav-btn" data-tab="custom" id="openCustomBtn">🎨 커스텀</button>
+      <button class="nav-btn" data-tab="achieve" id="openAchieveBtn">🏆 업적</button>
+      <button class="nav-btn" data-tab="fork" id="openForkBtn">🔄 환생</button>
       <button class="nav-btn" data-tab="stats" id="openStatsBtn">📊 통계</button>
-      <button class="nav-btn" data-tab="settings" id="saveBtn">💾 저장</button>
     </nav>
   </div>
 
-  <!-- 통계 모달 팝업 -->
+  <!-- 통계 모달 창 -->
   <div id="statsModal" class="modal hidden">
     <div class="modal-content">
       <div class="modal-header">
@@ -83,6 +104,94 @@
           <span class="stat-title">총 플레이 시간</span>
           <span id="statPlayTime" class="stat-value">0분</span>
         </div>
+        <button id="saveBtn" class="modal-action-btn">게임 수동 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 자동화 부품 공장 모달 창 -->
+  <div id="factoryModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🏭 컨베이어 벨트 부품 공장</h3>
+        <button id="closeFactoryBtn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body" id="factoryListContainer" style="max-height: 300px; overflow-y: auto;">
+        <!-- JS 동적 생성 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 가상 거래소 모달 창 -->
+  <div id="marketModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>📈 비트크립트 가상 거래소</h3>
+        <button id="closeMarketBtn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="stat-row">
+          <span class="stat-title">현재 코인 시세</span>
+          <span id="marketStockPrice" class="stat-value">100 코인</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-title">보유 코인 수량</span>
+          <span id="marketHoldings" class="stat-value">0개</span>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+          <button id="buyCryptoBtn" class="modal-action-btn primary" style="flex: 1;">코인 매수 (1개)</button>
+          <button id="sellCryptoBtn" class="modal-action-btn" style="flex: 1; background: #ef4444;">코인 매도 (1개)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 서버 커스텀 샵 모달 창 -->
+  <div id="customModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🎨 3D 서버 커스텀 샵</h3>
+        <button id="closeCustomBtn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body" id="customListContainer" style="max-height: 300px; overflow-y: auto;">
+        <!-- JS 동적 생성 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 업적 모달 창 -->
+  <div id="achieveModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🏆 업적 목록</h3>
+        <button id="closeAchieveBtn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body" id="achieveListContainer" style="max-height: 300px; overflow-y: auto;">
+        <!-- JS 동적 생성 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 하드포크 모달 창 -->
+  <div id="forkModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🔄 블록체인 하드포크 (환생)</h3>
+        <button id="closeForkBtn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="stat-row">
+          <span class="stat-title">현재 보유 코인</span>
+          <span id="forkCurrentCoins" class="stat-value">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-title">하드포크 시 획득 토큰</span>
+          <span id="forkGainTokens" class="stat-value">0개</span>
+        </div>
+        <p style="font-size: 0.85rem; color: #94a3b8; text-align: center; margin: 6px 0;">
+          * 하드포크 시 코인과 상점 레벨이 초기화되지만, 영구적인 <b>해시 토큰(전체 수익 +50%/개)</b>을 획득합니다!
+        </p>
+        <button id="executeForkBtn" class="modal-action-btn primary">하드포크 실행</button>
       </div>
     </div>
   </div>
