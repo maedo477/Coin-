@@ -823,7 +823,9 @@ const marketModal = document.getElementById("marketModal");
 const openMarketBtn = document.getElementById("openMarketBtn");
 const closeMarketBtn = document.getElementById("closeMarketBtn");
 const buyCryptoBtn = document.getElementById("buyCryptoBtn");
+const buyAllCryptoBtn = document.getElementById("buyAllCryptoBtn");
 const sellCryptoBtn = document.getElementById("sellCryptoBtn");
+const sellAllCryptoBtn = document.getElementById("sellAllCryptoBtn");
 
 const customModal = document.getElementById("customModal");
 const openCustomBtn = document.getElementById("openCustomBtn");
@@ -889,6 +891,7 @@ if (closeMarketBtn) {
   closeMarketBtn.addEventListener("click", () => marketModal.classList.add("hidden"));
 }
 
+// 코인 1개 매수
 if (buyCryptoBtn) {
   buyCryptoBtn.addEventListener("click", () => {
     const cost = state.cryptoStock;
@@ -905,6 +908,28 @@ if (buyCryptoBtn) {
   });
 }
 
+// 코인 전량 매수
+if (buyAllCryptoBtn) {
+  buyAllCryptoBtn.addEventListener("click", () => {
+    const costPerUnit = state.cryptoStock;
+    if (state.coins < costPerUnit) {
+      showToast("코인이 부족합니다!");
+      return;
+    }
+    const maxBuyable = Math.floor(state.coins / costPerUnit);
+    const totalCost = maxBuyable * costPerUnit;
+
+    state.coins -= totalCost;
+    state.cryptoHoldings += maxBuyable;
+    
+    showToast(`가상 코인 ${formatNumber(maxBuyable)}개 전량 매수 완료!`);
+    document.getElementById("marketStockPrice").textContent = formatNumber(state.cryptoStock) + " 코인";
+    document.getElementById("marketHoldings").textContent = formatNumber(state.cryptoHoldings) + "개";
+    updateUI();
+  });
+}
+
+// 코인 1개 매도
 if (sellCryptoBtn) {
   sellCryptoBtn.addEventListener("click", () => {
     if (state.cryptoHoldings <= 0) {
@@ -915,6 +940,26 @@ if (sellCryptoBtn) {
     state.coins += profit;
     state.cryptoHoldings--;
     showToast(`가상 코인 1개 매도! (+${formatNumber(profit)} 코인)`);
+    document.getElementById("marketStockPrice").textContent = formatNumber(state.cryptoStock) + " 코인";
+    document.getElementById("marketHoldings").textContent = formatNumber(state.cryptoHoldings) + "개";
+    updateUI();
+  });
+}
+
+// 코인 전량 매도
+if (sellAllCryptoBtn) {
+  sellAllCryptoBtn.addEventListener("click", () => {
+    if (state.cryptoHoldings <= 0) {
+      showToast("보유 중인 가상 코인이 없습니다!");
+      return;
+    }
+    const totalHoldings = state.cryptoHoldings;
+    const totalProfit = totalHoldings * state.cryptoStock;
+
+    state.coins += totalProfit;
+    state.cryptoHoldings = 0;
+
+    showToast(`가상 코인 ${formatNumber(totalHoldings)}개 전량 매도! (+${formatNumber(totalProfit)} 코인)`);
     document.getElementById("marketStockPrice").textContent = formatNumber(state.cryptoStock) + " 코인";
     document.getElementById("marketHoldings").textContent = formatNumber(state.cryptoHoldings) + "개";
     updateUI();
